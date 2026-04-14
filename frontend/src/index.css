@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #FAF3EE;
+    color: #1a1a1a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: #FAF3EE;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #FAF3EE;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(139, 26, 26, 0.25);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 26, 26, 0.45);
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(139, 26, 26, 0.08);
+    border-radius: 20px;
+    box-shadow: 0 4px 32px rgba(139, 26, 26, 0.08);
+  }
+
+  .btn-primary {
+    @apply bg-red-deep text-white font-semibold px-5 py-2.5 rounded-ui
+           hover:bg-red-mid active:scale-95 transition-all duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-white border border-red-deep/20 text-red-deep font-semibold
+           px-5 py-2.5 rounded-ui hover:bg-red-deep/5 active:scale-95
+           transition-all duration-150;
+  }
+
+  .input-field {
+    @apply w-full rounded-ui border border-gray-200 bg-white/80 px-3 py-2.5
+           text-sm text-gray-900 placeholder:text-gray-400
+           focus:border-red-deep/40 focus:outline-none focus:ring-2
+           focus:ring-red-deep/10 transition-all duration-150;
+  }
+
+  .label {
+    @apply block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide;
+  }
+
+  .page-title {
+    @apply font-display text-2xl font-bold text-red-deep;
+  }
+
+  .semaforo-ok      { @apply text-emerald-600 bg-emerald-50 border-emerald-200; }
+  .semaforo-alerta  { @apply text-amber-600   bg-amber-50   border-amber-200;   }
+  .semaforo-critico { @apply text-red-mid     bg-red-50     border-red-200;     }
+}
+
+/* Patrón sutil de fondo para login */
+.bg-pattern {
+  background-image: radial-gradient(circle at 1px 1px, rgba(139,26,26,0.05) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Fade in page */
+.page-enter {
+  animation: pageEnter 0.3s ease-out;
+}
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
