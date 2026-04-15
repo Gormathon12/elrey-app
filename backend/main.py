@@ -144,11 +144,6 @@ app.include_router(usuarios.router,   prefix="/usuarios",   tags=["Usuarios"])
 app.include_router(ocr.router,        prefix="/ocr",        tags=["OCR"])
 
 
-@app.get("/", tags=["Health"])
-def root():
-    return {"status": "ok", "app": "El Rey API v1.0 🥩"}
-
-
 @app.get("/health", tags=["Health"])
 def health():
     return {"status": "healthy"}
@@ -158,9 +153,17 @@ def health():
 _FRONTEND = pathlib.Path(__file__).parent.parent / "frontend" / "dist"
 
 if _FRONTEND.exists():
+    @app.get("/", include_in_schema=False)
+    async def serve_root():
+        return FileResponse(str(_FRONTEND / "index.html"))
+
     @app.get("/{full_path:path}", include_in_schema=False)
     async def serve_spa(full_path: str):
         target = _FRONTEND / full_path
         if target.is_file():
             return FileResponse(str(target))
         return FileResponse(str(_FRONTEND / "index.html"))
+else:
+    @app.get("/", tags=["Health"])
+    def root():
+        return {"status": "ok", "app": "El Rey API v1.0 🥩"}
