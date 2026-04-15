@@ -19,7 +19,11 @@ export default function Login() {
       const user = await login(username, password)
       navigate('/')
     } catch (err) {
-      setError(err.response?.data?.detail || 'Email o contraseña incorrectos')
+      if (err.code === 'ECONNABORTED' || !err.response) {
+        setError('El servidor está iniciando, intentá de nuevo en unos segundos...')
+      } else {
+        setError(err.response?.data?.detail || 'Usuario o contraseña incorrectos')
+      }
     } finally {
       setLoading(false)
     }
