@@ -112,6 +112,7 @@ app = FastAPI(
     version="1.0.0",
     description="Sistema de gestión de arqueos de caja para la red de sucursales El Rey",
     lifespan=lifespan,
+    redirect_slashes=False,
 )
 
 _cors_origins = [

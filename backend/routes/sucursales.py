@@ -13,7 +13,7 @@ from models import Usuario
 router = APIRouter()
 
 
-@router.get("/", response_model=List[SucursalResponse])
+@router.get("", response_model=List[SucursalResponse])
 def listar_sucursales(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user),
@@ -21,7 +21,7 @@ def listar_sucursales(
     return db.query(Sucursal).order_by(Sucursal.id).all()
 
 
-@router.post("/", response_model=SucursalResponse)
+@router.post("", response_model=SucursalResponse)
 def crear_sucursal(
     sucursal_in: SucursalCreate,
     db: Session = Depends(get_db),

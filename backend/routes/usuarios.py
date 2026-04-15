@@ -10,7 +10,7 @@ from auth import get_current_user, require_roles, get_password_hash
 router = APIRouter()
 
 
-@router.get("/", response_model=List[UsuarioResponse])
+@router.get("", response_model=List[UsuarioResponse])
 def listar_usuarios(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(require_roles("dueno", "encargado")),
@@ -21,7 +21,7 @@ def listar_usuarios(
     return query.order_by(Usuario.nombre).all()
 
 
-@router.post("/", response_model=UsuarioResponse)
+@router.post("", response_model=UsuarioResponse)
 def crear_usuario(
     usuario_in: UsuarioCreate,
     db: Session = Depends(get_db),

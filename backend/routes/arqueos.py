@@ -247,7 +247,7 @@ def red_semana(
 
 # ─── CRUD ────────────────────────────────────────────────────────────────────
 
-@router.post("/", response_model=ArqueoResponse)
+@router.post("", response_model=ArqueoResponse)
 def crear_arqueo(
     arqueo_in: ArqueoCreate,
     background_tasks: BackgroundTasks,
@@ -307,7 +307,7 @@ def crear_arqueo(
     return _load_arqueo(db, arqueo.id)
 
 
-@router.get("/", response_model=List[ArqueoResponse])
+@router.get("", response_model=List[ArqueoResponse])
 def listar_arqueos(
     sucursal_id: Optional[int] = None,
     fecha_desde: Optional[str] = None,
