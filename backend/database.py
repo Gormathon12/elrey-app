@@ -5,7 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./elrey.db")
+# APP_DATABASE_URL tiene prioridad: evita que una base linkeada huérfana de Render
+# (que inyecta DATABASE_URL con un host interno muerto) pise la config real.
+DATABASE_URL = os.getenv("APP_DATABASE_URL") or os.getenv("DATABASE_URL", "sqlite:///./elrey.db")
 # Render a veces provee postgres:// — SQLAlchemy requiere postgresql://
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
