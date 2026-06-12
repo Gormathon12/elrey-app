@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: elrey-app
+    runtime: python
+    plan: free
+    # El frontend se compila localmente y se commitea en frontend/dist,
+    # así Render solo necesita Python para instalar deps y servir el dist + la API.
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.6"
+      - key: SECRET_KEY
+        generateValue: true        # Render genera un secreto fuerte automáticamente
+      - key: DATABASE_URL
+        sync: false                # Pegar acá el connection string de Neon (Postgres)
+      - key: ANTHROPIC_API_KEY
+        sync: false                # Opcional: solo para el OCR de tickets por foto

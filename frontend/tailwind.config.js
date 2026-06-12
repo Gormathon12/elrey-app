@@ -5,14 +5,23 @@ export default {
     extend: {
       colors: {
         cream: '#FAF3EE',
+        background: '#FAF3EE',
         'red-deep': '#8B1A1A',
         'red-mid': '#C0392B',
         earth: '#E8A87C',
         'brown-light': '#6B4030',
         surface: 'rgba(255,255,255,0.82)',
+        // Editorial design system (Stitch "Artisanal Butcher")
+        copper: '#B87333',
+        paper: '#FFFFFF',
+        ink: '#1e1b18',
+        'ink-soft': '#58413f',
+        line: '#e8e1dc',
+        'line-soft': '#e0bfbc',
       },
       fontFamily: {
         display: ['"Playfair Display"', 'Georgia', 'serif'],
+        editorial: ['"EB Garamond"', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       borderRadius: {

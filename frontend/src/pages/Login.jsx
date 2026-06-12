@@ -4,19 +4,20 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../hooks/useAuth'
 
 export default function Login() {
-  const [username, setUsername]  = useState('')
-  const [password, setPassword]  = useState('')
-  const [loading, setLoading]    = useState(false)
-  const [error, setError]        = useState(null)
-  const { login }                = useAuth()
-  const navigate                 = useNavigate()
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const { login } = useAuth()
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     try {
-      const user = await login(username, password)
+      await login(username, password)
       navigate('/')
     } catch (err) {
       if (err.code === 'ECONNABORTED' || !err.response) {
@@ -30,52 +31,39 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-cream bg-pattern flex items-center justify-center p-4">
-      {/* Gradiente de fondo */}
-      <div className="absolute inset-0 bg-gradient-to-br from-cream via-cream to-earth/20 pointer-events-none" />
-
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full max-w-sm"
+        className="w-full max-w-sm"
       >
-        {/* Card */}
-        <div className="glass-card p-8">
-          {/* Logo */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="text-center mb-8"
-          >
-            <motion.div
-              animate={{ rotate: [0, -5, 5, -5, 0] }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="text-6xl mb-3 inline-block"
-            >
-              🥩
-            </motion.div>
-            <h1 className="font-display text-4xl font-bold text-red-deep">El Rey</h1>
-            <p className="text-sm text-gray-500 mt-1 font-medium tracking-wide">
-              Sistema de Arqueos de Caja
-            </p>
-          </motion.div>
+        {/* Logo + marca */}
+        <div className="text-center mb-10">
+          <img
+            src="/logo.jpg"
+            alt="Carnes El Rey"
+            className="w-24 h-24 rounded-full object-cover mx-auto ring-1 ring-line"
+          />
+          <h1 className="ed-title text-5xl text-red-deep uppercase tracking-tight mt-5">El Rey</h1>
+          <p className="ed-label mt-2">Maestros Carniceros</p>
+        </div>
 
-          {/* Formulario */}
-          <motion.form
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.25 }}
-            onSubmit={handleSubmit}
-            className="space-y-4"
-          >
-            <div>
-              <label className="label">Usuario</label>
+        {/* Formulario */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          {/* Usuario */}
+          <div>
+            <label className="ed-label block mb-2">Usuario</label>
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft text-[20px]">
+                person
+              </span>
               <input
-                className="input-field"
+                className="w-full bg-paper border border-line rounded-lg pl-11 pr-3 py-3 text-ink
+                           placeholder:text-ink-soft/60 focus:outline-none focus:border-red-deep
+                           transition-colors"
                 type="text"
-                placeholder="kcoria"
+                placeholder="Ingrese su usuario"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 autoComplete="username"
@@ -83,62 +71,78 @@ export default function Login() {
                 required
               />
             </div>
+          </div>
 
-            <div>
-              <label className="label">Contraseña</label>
+          {/* Contraseña */}
+          <div>
+            <label className="ed-label block mb-2">Contraseña</label>
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft text-[20px]">
+                lock
+              </span>
               <input
-                className="input-field"
-                type="password"
+                className="w-full bg-paper border border-line rounded-lg pl-11 pr-11 py-3 text-ink
+                           placeholder:text-ink-soft/60 focus:outline-none focus:border-red-deep
+                           transition-colors"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 required
               />
-            </div>
-
-            {error && (
-              <motion.p
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-red-mid bg-red-50 border border-red-200
-                           rounded-ui px-3 py-2 text-center"
+              <button
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-red-deep transition-colors"
+                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
-                {error}
-              </motion.p>
-            )}
-
-            <motion.button
-              type="submit"
-              disabled={loading}
-              whileTap={{ scale: 0.97 }}
-              className="w-full btn-primary py-3 text-base mt-2"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                  </svg>
-                  Ingresando...
+                <span className="material-symbols-outlined text-[20px]">
+                  {showPassword ? 'visibility_off' : 'visibility'}
                 </span>
-              ) : 'Ingresar'}
-            </motion.button>
-          </motion.form>
+              </button>
+            </div>
+          </div>
 
-          {/* Hint */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-center text-xs text-gray-400 mt-6"
+          {error && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-sm text-red-mid bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-center"
+            >
+              {error}
+            </motion.p>
+          )}
+
+          <motion.button
+            type="submit"
+            disabled={loading}
+            whileTap={{ scale: 0.98 }}
+            className="w-full bg-red-deep text-white ed-label text-[13px] py-3.5 rounded-lg
+                       hover:bg-red-mid transition-colors disabled:opacity-50
+                       flex items-center justify-center gap-2 mt-1"
           >
-            kcoria · elrey2026
-          </motion.p>
-        </div>
+            {loading ? (
+              <>
+                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                Ingresando...
+              </>
+            ) : (
+              <>
+                Ingresar
+                <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </>
+            )}
+          </motion.button>
+        </form>
 
-        {/* Versión */}
-        <p className="text-center text-xs text-gray-400 mt-4">El Rey v1.0</p>
+        {/* Footer */}
+        <p className="ed-label text-[9px] text-center text-ink-soft/70 mt-10">
+          Acceso restringido · Personal autorizado
+        </p>
       </motion.div>
     </div>
   )

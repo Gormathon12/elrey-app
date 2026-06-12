@@ -26,12 +26,16 @@ export default function Sidebar() {
     <motion.aside
       animate={{ width: collapsed ? 72 : 240 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="hidden md:flex flex-col bg-white/90 backdrop-blur-card border-r
-                 border-red-deep/8 shadow-card overflow-hidden flex-shrink-0 z-10"
+      className="hidden md:flex flex-col bg-paper border-r border-line
+                 overflow-hidden flex-shrink-0 z-10"
     >
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-red-deep/8">
-        <span className="text-2xl flex-shrink-0">🥩</span>
+      <div className="flex items-center gap-3 px-4 py-5 border-b border-red-deep">
+        <img
+          src="/logo.jpg"
+          alt="Carnes El Rey"
+          className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-1 ring-line"
+        />
         <AnimatePresence>
           {!collapsed && (
             <motion.div
@@ -40,8 +44,8 @@ export default function Sidebar() {
               exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.2 }}
             >
-              <p className="font-display font-bold text-red-deep leading-tight">El Rey</p>
-              <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">Carnicería</p>
+              <p className="ed-title text-xl text-red-deep leading-none uppercase tracking-tight">El Rey</p>
+              <p className="ed-label text-[9px] mt-0.5">Carnicería</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -58,11 +62,11 @@ export default function Sidebar() {
               to={item.to}
               end={item.to === '/'}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-ui text-sm font-medium
-                 transition-all duration-150 group
+                `flex items-center gap-3 px-3 py-2.5 ed-label text-[11px]
+                 transition-all duration-150 group border-l-2
                  ${isActive
-                   ? 'bg-red-deep text-white shadow-sm'
-                   : 'text-gray-600 hover:bg-red-deep/8 hover:text-red-deep'
+                   ? 'text-red-deep border-red-deep bg-red-deep/5'
+                   : 'text-ink-soft border-transparent hover:text-ink hover:bg-cream'
                  }`
               }
             >
@@ -85,11 +89,11 @@ export default function Sidebar() {
       </nav>
 
       {/* Usuario + logout */}
-      <div className="border-t border-red-deep/8 p-3 space-y-1">
+      <div className="border-t border-line p-3 space-y-1">
         <button
           onClick={logout}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-ui text-sm
-                     font-medium text-gray-500 hover:bg-red-50 hover:text-red-mid
+          className="flex items-center gap-3 w-full px-3 py-2.5 ed-label text-[11px]
+                     text-ink-soft hover:bg-red-50 hover:text-red-mid
                      transition-all duration-150"
         >
           <ArrowRightOnRectangleIcon className="w-5 h-5 flex-shrink-0" />

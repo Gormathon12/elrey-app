@@ -38,6 +38,27 @@
 }
 
 @layer components {
+  /* ── Editorial design system (Stitch "Artisanal Butcher") ── */
+  .ed-card {
+    @apply bg-paper border border-line;
+    box-shadow: 0 2px 8px rgba(30, 27, 24, 0.04);
+  }
+  .ed-card-accent {
+    border-top: 3px solid #8b1a1a;
+  }
+  .ed-title {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .ed-label {
+    @apply text-[11px] font-bold uppercase text-ink-soft;
+    letter-spacing: 0.15em;
+  }
+  .ed-glow-line {
+    filter: drop-shadow(0 0 6px rgba(139, 26, 26, 0.3));
+  }
+
   .glass-card {
     background: rgba(255, 255, 255, 0.82);
     backdrop-filter: blur(16px);
@@ -77,6 +98,25 @@
   .semaforo-ok      { @apply text-emerald-600 bg-emerald-50 border-emerald-200; }
   .semaforo-alerta  { @apply text-amber-600   bg-amber-50   border-amber-200;   }
   .semaforo-critico { @apply text-red-mid     bg-red-50     border-red-200;     }
+}
+
+/* Material Symbols (íconos del diseño editorial) */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.material-symbols-outlined.icon-fill {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Patrón sutil de fondo para login */
