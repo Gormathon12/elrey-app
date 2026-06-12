@@ -46,7 +46,7 @@ export default function Login() {
             className="w-24 h-24 rounded-full object-cover mx-auto ring-1 ring-line"
           />
           <h1 className="ed-title text-5xl text-red-deep uppercase tracking-tight mt-5">El Rey</h1>
-          <p className="ed-label mt-2">Maestros Carniceros</p>
+          <p className="ed-label mt-2">Carnicería</p>
         </div>
 
         {/* Formulario */}
