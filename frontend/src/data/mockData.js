@@ -1,20 +1,24 @@
 // Datos mock para preview de gráficos cuando no hay datos reales
 export const METODOS_PAGO_LABELS = {
-  efectivo:   'Efectivo',
-  qr_mp:      'QR Mercado Pago',
-  qr_naranja: 'QR Naranja',
-  credito:    'Tarjeta Crédito',
-  debito:     'Tarjeta Débito',
-  otro:       'Otro',
+  efectivo:       'Efectivo',
+  qr_mp:          'QR Mercado Pago',
+  qr_naranja:     'QR Naranja',
+  credito:        'Tarjeta Crédito',
+  debito:         'Tarjeta Débito',
+  transferencia:  'Transferencia',
+  vale_empleados: 'Vale de empleados',
+  otro:           'Otro',
 }
 
 export const METODOS_COLORES = {
-  efectivo:   '#8B1A1A',
-  qr_mp:      '#009EE3',
-  qr_naranja: '#FF6900',
-  credito:    '#6B4030',
-  debito:     '#E8A87C',
-  otro:       '#9CA3AF',
+  efectivo:       '#8B1A1A',
+  qr_mp:          '#009EE3',
+  qr_naranja:     '#FF6900',
+  credito:        '#6B4030',
+  debito:         '#E8A87C',
+  transferencia:  '#2E7D32',
+  vale_empleados: '#7B5EA7',
+  otro:           '#9CA3AF',
 }
 
 export const DIAS_SEMANA_ES = {

@@ -9,7 +9,7 @@ import { useSucursales } from '../../hooks/useArqueos'
 const ARS = (n) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }).format(n ?? 0)
 
-const METODOS_ORDER = ['efectivo', 'qr_mp', 'qr_naranja', 'credito', 'debito', 'otro']
+const METODOS_ORDER = ['efectivo', 'qr_mp', 'qr_naranja', 'credito', 'debito', 'transferencia', 'vale_empleados', 'otro']
 
 const semaforo = (dif) => {
   const abs = Math.abs(dif)
@@ -100,6 +100,8 @@ export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onC
         qr_naranja: { monto: datosOCR.pagos?.qr_naranja?.monto       ?? '', transacciones: datosOCR.pagos?.qr_naranja?.transacciones       ?? '' },
         credito:    { monto: datosOCR.pagos?.tarjeta_credito?.monto   ?? '', transacciones: datosOCR.pagos?.tarjeta_credito?.transacciones   ?? '' },
         debito:     { monto: datosOCR.pagos?.tarjeta_debito?.monto    ?? '', transacciones: datosOCR.pagos?.tarjeta_debito?.transacciones    ?? '' },
+        transferencia:  { monto: datosOCR.pagos?.transferencia?.monto  ?? '', transacciones: datosOCR.pagos?.transferencia?.transacciones  ?? '' },
+        vale_empleados: { monto: datosOCR.pagos?.vale_empleados?.monto ?? '', transacciones: datosOCR.pagos?.vale_empleados?.transacciones ?? '' },
         otro:       { monto: datosOCR.pagos?.otro?.monto              ?? '', transacciones: datosOCR.pagos?.otro?.transacciones              ?? '' },
       },
     }))

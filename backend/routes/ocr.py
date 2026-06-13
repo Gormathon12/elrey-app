@@ -68,6 +68,8 @@ async def procesar_ticket(
         '    "qr_naranja": { "monto": number, "transacciones": number },\n'
         '    "tarjeta_credito": { "monto": number, "transacciones": number },\n'
         '    "tarjeta_debito": { "monto": number, "transacciones": number },\n'
+        '    "transferencia": { "monto": number, "transacciones": number },\n'
+        '    "vale_empleados": { "monto": number, "transacciones": number },\n'
         '    "otro": { "monto": number, "transacciones": number }\n'
         '  }\n'
         '}\n'
@@ -84,6 +86,12 @@ async def procesar_ticket(
         "- 'total_egresos': el 'TOTAL EGRESOS' en POSITIVO (sin signo menos). Si no hay, 0.\n"
         "- 'total_esperado': el 'SALDO ESPERADO'.\n"
         "- 'total_real': el 'SALDO REAL'.\n"
+        "- 'transferencia': el ítem 'Transferencia' del bloque VENTAS POR FORMA DE PAGO.\n"
+        "- 'vale_empleados': el ítem 'Vale de empleados' (o 'Vale empleados', 'Vales'). "
+        "Es una categoría PROPIA: NO la sumes ni la mezcles con 'otro'.\n"
+        "- 'otro': SOLO los importes que no encajan en ninguna categoría anterior "
+        "(no incluyas transferencia ni vale de empleados acá).\n"
+        "Cada forma de pago va a su categoría exacta. Si una no aparece en el ticket, usá monto 0.\n"
         "Si un campo no existe en el ticket, usá null. Los montos son en pesos argentinos, sin símbolo ni signo."
     )
 

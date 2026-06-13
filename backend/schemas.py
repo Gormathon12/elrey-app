@@ -22,6 +22,8 @@ class MetodoPagoEnum(str, Enum):
     qr_naranja = "qr_naranja"
     credito = "credito"
     debito = "debito"
+    transferencia = "transferencia"
+    vale_empleados = "vale_empleados"
     otro = "otro"
 
 
