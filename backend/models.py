@@ -33,6 +33,8 @@ class MetodoPagoEnum(str, enum.Enum):
     qr_naranja = "qr_naranja"
     credito = "credito"
     debito = "debito"
+    transferencia = "transferencia"
+    vale_empleados = "vale_empleados"
     otro = "otro"
 
 
@@ -99,7 +101,7 @@ class PagoDetalle(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     arqueo_id = Column(Integer, ForeignKey("arqueos.id"), nullable=False)
-    metodo = Column(Enum(MetodoPagoEnum), nullable=False)
+    metodo = Column(String(30), nullable=False)  # texto: evita migraciones de enum nativo de Postgres
     monto = Column(Float, default=0.0)
     cantidad_transacciones = Column(Integer, default=0)
 

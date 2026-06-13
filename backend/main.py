@@ -99,9 +99,32 @@ def seed_data():
 
 # ─── App lifecycle ───────────────────────────────────────────────────────────
 
+def migrate_schema():
+    """Convierte pagos_detalle.metodo de enum nativo de Postgres a varchar.
+    Idempotente: si ya es varchar no hace nada. Evita el error
+    'invalid input value for enum' al agregar nuevas formas de pago."""
+    if engine.dialect.name != "postgresql":
+        return
+    from sqlalchemy import text
+    try:
+        with engine.begin() as conn:
+            data_type = conn.execute(text(
+                "SELECT data_type FROM information_schema.columns "
+                "WHERE table_name='pagos_detalle' AND column_name='metodo'"
+            )).scalar()
+            if data_type and data_type.lower() not in ("character varying", "text"):
+                conn.execute(text(
+                    "ALTER TABLE pagos_detalle ALTER COLUMN metodo TYPE varchar(30) USING metodo::text"
+                ))
+                print("[OK] migracion: pagos_detalle.metodo -> varchar")
+    except Exception as e:
+        print(f"[WARN] migracion metodo: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
+    migrate_schema()
     os.makedirs("uploads/tickets", exist_ok=True)
     seed_data()
     yield
