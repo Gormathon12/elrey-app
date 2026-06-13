@@ -28,7 +28,8 @@ function toDatetimeLocal(iso) {
 function fromDDMMYYYY(s) {
   if (!s || !s.includes('/')) return null
   const [d, m, y] = s.split('/')
-  return `${y}-${m}-${d}`
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${y}-${pad(m)}-${pad(d)}`
 }
 
 const norm = (s) => (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '')
@@ -77,8 +78,9 @@ export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onC
     }
 
     const egresos = Array.isArray(datosOCR.egresos) ? datosOCR.egresos : []
-    const totalEgresos = datosOCR.total_egresos
-      ?? egresos.reduce((s, e) => s + (Number(e?.monto) || 0), 0)
+    // Lo que descuenta del saldo esperado es la suma de los egresos discriminados.
+    const sumaEgresos = egresos.reduce((s, e) => s + (Number(e?.monto) || 0), 0)
+    const totalEgresos = egresos.length ? sumaEgresos : (Number(datosOCR.total_egresos) || 0)
 
     setForm((prev) => ({
       ...prev,
@@ -90,7 +92,7 @@ export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onC
       monto_inicial:  datosOCR.monto_inicial  ?? prev.monto_inicial,
       ventas_efectivo:datosOCR.ventas_efectivo ?? prev.ventas_efectivo,
       total_real:     datosOCR.total_real     ?? prev.total_real,
-      monto_retiro:   totalEgresos ?? prev.monto_retiro,
+      monto_retiro:   totalEgresos,
       egresos,
       pagos: {
         efectivo:   { monto: datosOCR.pagos?.efectivo?.monto         ?? '', transacciones: datosOCR.pagos?.efectivo?.transacciones         ?? '' },
@@ -232,11 +234,11 @@ export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onC
         </div>
       </div>
 
-      {/* Retiro de caja (egresos) — leído del ticket, discriminado */}
-      {(montoRetiro > 0 || form.egresos.length > 0) && (
+      {/* Egresos — por foto: discriminados del ticket; manual: campo editable */}
+      {datosOCR ? (
         <div className="border border-amber-200 bg-amber-50 rounded-ui p-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-amber-700 uppercase tracking-wide">Retiro de caja (egresos)</span>
+            <span className="text-xs font-semibold text-amber-700 uppercase tracking-wide">Egresos (retiro de caja)</span>
             <span className="text-[10px] text-amber-600">leído del ticket</span>
           </div>
           {form.egresos.length > 0 ? (
@@ -249,12 +251,25 @@ export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onC
               ))}
             </ul>
           ) : (
-            <p className="text-xs text-gray-500">Sin detalle de egresos en el ticket.</p>
+            <p className="text-xs text-gray-500">Sin egresos en el ticket.</p>
           )}
           <div className="flex items-center justify-between pt-1 border-t border-amber-200">
-            <span className="text-sm font-semibold text-amber-800">Total retiro</span>
+            <span className="text-sm font-semibold text-amber-800">Total egresos</span>
             <span className="text-base font-bold text-amber-800 font-display">− {ARS(montoRetiro)}</span>
           </div>
+        </div>
+      ) : (
+        <div>
+          <label className="label">Retiro de caja / depósito ($) — opcional</label>
+          <input
+            className="input-field"
+            type="number"
+            step="0.01"
+            placeholder="0"
+            value={form.monto_retiro}
+            onChange={(e) => set('monto_retiro', e.target.value)}
+          />
+          <p className="text-[10px] text-gray-400 mt-1">Se descuenta del saldo esperado.</p>
         </div>
       )}
 
