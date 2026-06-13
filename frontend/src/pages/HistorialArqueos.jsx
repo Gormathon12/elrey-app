@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FunnelIcon, XMarkIcon, ArrowDownTrayIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import { FunnelIcon, XMarkIcon, ArrowDownTrayIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon } from '@heroicons/react/24/outline'
 import Badge from '../components/ui/Badge'
 import Button from '../components/ui/Button'
 import { METODOS_PAGO_LABELS } from '../data/mockData'
 import api from '../services/api'
 import { exportarExcel } from '../services/excelExport'
 import { useSucursales } from '../hooks/useArqueos'
+import { useAuthStore } from '../store/authStore'
 
 const ARS = (n) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(n ?? 0)
@@ -17,6 +18,8 @@ const PAGE_SIZE = 10
 export default function HistorialArqueos() {
   const navigate = useNavigate()
   const { sucursales } = useSucursales()
+  const { user } = useAuthStore()
+  const esDueno = user?.rol === 'dueno'
 
   const [arqueos, setArqueos]       = useState([])
   const [loading, setLoading]       = useState(true)
@@ -24,6 +27,21 @@ export default function HistorialArqueos() {
   const [showFilters, setShowFilters] = useState(false)
   const [selectedArqueo, setSelectedArqueo] = useState(null)
   const [exportLoading, setExportLoading]   = useState(false)
+  const [deleting, setDeleting]     = useState(false)
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('¿Eliminar este arqueo? Esta acción no se puede deshacer.')) return
+    setDeleting(true)
+    try {
+      await api.delete(`/arqueos/${id}`)
+      setSelectedArqueo(null)
+      fetchArqueos()
+    } catch (e) {
+      alert(e.response?.data?.detail || 'No se pudo eliminar el arqueo.')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   const [filters, setFilters] = useState({
     sucursal_id: '',
@@ -270,6 +288,7 @@ export default function HistorialArqueos() {
                 {/* Info */}
                 <div className="glass-card p-4 space-y-2 text-sm">
                   {[
+                    ['Fecha', new Date(selectedArqueo.fecha_cierre).toLocaleDateString('es-AR')],
                     ['Cajero', selectedArqueo.cajero?.nombre || selectedArqueo.cajero_nombre],
                     ['Apertura', new Date(selectedArqueo.fecha_apertura).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })],
                     ['Cierre', new Date(selectedArqueo.fecha_cierre).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })],
@@ -304,13 +323,25 @@ export default function HistorialArqueos() {
                 )}
               </div>
 
-              <div className="p-4 border-t border-gray-100 bg-white/50">
+              <div className="p-4 border-t border-gray-100 bg-white/50 space-y-2">
                 <Button
                   className="w-full"
                   onClick={() => navigate(`/arqueo/${selectedArqueo.id}`)}
                 >
                   Ver detalle completo
                 </Button>
+                {esDueno && (
+                  <button
+                    onClick={() => handleDelete(selectedArqueo.id)}
+                    disabled={deleting}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-ui
+                               text-sm font-semibold text-red-mid border border-red-200
+                               hover:bg-red-50 transition-colors disabled:opacity-50"
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                    {deleting ? 'Eliminando...' : 'Eliminar arqueo'}
+                  </button>
+                )}
               </div>
             </motion.aside>
           </>

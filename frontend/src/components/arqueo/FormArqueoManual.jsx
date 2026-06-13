@@ -72,9 +72,15 @@ export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onC
     if (!datosOCR) return
     const fecha = datosOCR.fecha ? fromDDMMYYYY(datosOCR.fecha) : null
 
+    // Extrae HH:MM de un string de hora (tolera '09:00', '09:00:06', '9:00')
+    const hhmm = (t) => {
+      const m = (t || '').toString().match(/(\d{1,2}):(\d{2})/)
+      return m ? `${m[1].padStart(2, '0')}:${m[2]}` : ''
+    }
     const buildDatetime = (dateStr, timeStr) => {
-      if (!dateStr || !timeStr) return ''
-      return `${dateStr}T${timeStr}:00`
+      const t = hhmm(timeStr)
+      if (!dateStr || !t) return ''
+      return `${dateStr}T${t}:00`
     }
 
     const egresos = Array.isArray(datosOCR.egresos) ? datosOCR.egresos : []
