@@ -254,7 +254,9 @@ def crear_arqueo(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user),
 ):
-    total_esperado = arqueo_in.monto_inicial + arqueo_in.ventas_efectivo
+    # El saldo esperado descuenta el retiro de caja (total de egresos):
+    # Saldo Esperado = Saldo Inicial + Ventas Efectivo − Egresos
+    total_esperado = arqueo_in.monto_inicial + arqueo_in.ventas_efectivo - (arqueo_in.monto_retiro or 0)
     diferencia = arqueo_in.total_real - total_esperado
     estado = calcular_estado(diferencia)
 

@@ -57,6 +57,8 @@ async def procesar_ticket(
         '  "fecha": "string (DD/MM/YYYY)",\n'
         '  "monto_inicial": number,\n'
         '  "ventas_efectivo": number,\n'
+        '  "egresos": [ { "concepto": "string", "monto": number } ],\n'
+        '  "total_egresos": number,\n'
         '  "total_esperado": number,\n'
         '  "total_real": number,\n'
         '  "diferencia": number,\n'
@@ -69,7 +71,17 @@ async def procesar_ticket(
         '    "otro": { "monto": number, "transacciones": number }\n'
         '  }\n'
         '}\n'
-        "Si un campo no existe en el ticket, usá null. Los montos son en pesos argentinos, sin símbolo."
+        "REGLAS IMPORTANTES:\n"
+        "- 'cajero': tomá el nombre REAL del cajero del campo 'Caja:' (ej. 'Caja: Kevin Coria #1' -> 'Kevin Coria'). "
+        "Quitá el número de caja (#1, etc). NO uses el campo 'Cajero:' (suele decir cosas como 'cajero verduleria').\n"
+        "- 'sucursal': tomá el valor del campo 'Sucursal:' (ej. 'El Rey 2').\n"
+        "- 'monto_inicial': el 'Saldo Inicial'.\n"
+        "- 'egresos': lista de cada retiro/egreso del bloque EGRESOS, con su concepto (ej. 'deposito') y monto en POSITIVO. "
+        "Si no hay egresos, devolvé [].\n"
+        "- 'total_egresos': el 'TOTAL EGRESOS' en POSITIVO (sin signo menos). Si no hay, 0.\n"
+        "- 'total_esperado': el 'SALDO ESPERADO'.\n"
+        "- 'total_real': el 'SALDO REAL'.\n"
+        "Si un campo no existe en el ticket, usá null. Los montos son en pesos argentinos, sin símbolo ni signo."
     )
 
     try:

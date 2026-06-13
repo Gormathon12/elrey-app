@@ -31,6 +31,18 @@ function fromDDMMYYYY(s) {
   return `${y}-${m}-${d}`
 }
 
+const norm = (s) => (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '')
+
+/** Matchea el nombre de sucursal leído del ticket contra la lista real → id */
+function matchSucursalId(nombre, sucursales) {
+  if (!nombre || !sucursales?.length) return ''
+  const n = norm(nombre)
+  const exact = sucursales.find((s) => norm(s.nombre) === n)
+  if (exact) return String(exact.id)
+  const partial = sucursales.find((s) => n.includes(norm(s.nombre)) || norm(s.nombre).includes(n))
+  return partial ? String(partial.id) : ''
+}
+
 export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onClose }) {
   const { user }      = useAuthStore()
   const { sucursales } = useSucursales()
@@ -50,10 +62,11 @@ export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onC
     ventas_efectivo:'',
     total_real:     '',
     monto_retiro:   '',
+    egresos:        [],
     pagos: METODOS_ORDER.reduce((acc, m) => ({ ...acc, [m]: { monto: '', transacciones: '' } }), {}),
   })
 
-  // Pre-llenar desde OCR
+  // Pre-llenar desde OCR (se re-ejecuta también cuando cargan las sucursales)
   useEffect(() => {
     if (!datosOCR) return
     const fecha = datosOCR.fecha ? fromDDMMYYYY(datosOCR.fecha) : null
@@ -63,14 +76,22 @@ export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onC
       return `${dateStr}T${timeStr}:00`
     }
 
+    const egresos = Array.isArray(datosOCR.egresos) ? datosOCR.egresos : []
+    const totalEgresos = datosOCR.total_egresos
+      ?? egresos.reduce((s, e) => s + (Number(e?.monto) || 0), 0)
+
     setForm((prev) => ({
       ...prev,
+      // La sucursal se lee del ticket si no estaba previamente seleccionada
+      sucursal_id:    prev.sucursal_id || matchSucursalId(datosOCR.sucursal, sucursales),
       cajero_nombre:  datosOCR.cajero || prev.cajero_nombre,
       fecha_apertura: buildDatetime(fecha, datosOCR.apertura) || prev.fecha_apertura,
       fecha_cierre:   buildDatetime(fecha, datosOCR.cierre)   || prev.fecha_cierre,
       monto_inicial:  datosOCR.monto_inicial  ?? prev.monto_inicial,
       ventas_efectivo:datosOCR.ventas_efectivo ?? prev.ventas_efectivo,
       total_real:     datosOCR.total_real     ?? prev.total_real,
+      monto_retiro:   totalEgresos ?? prev.monto_retiro,
+      egresos,
       pagos: {
         efectivo:   { monto: datosOCR.pagos?.efectivo?.monto         ?? '', transacciones: datosOCR.pagos?.efectivo?.transacciones         ?? '' },
         qr_mp:      { monto: datosOCR.pagos?.qr_mercado_pago?.monto  ?? '', transacciones: datosOCR.pagos?.qr_mercado_pago?.transacciones  ?? '' },
@@ -80,7 +101,7 @@ export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onC
         otro:       { monto: datosOCR.pagos?.otro?.monto              ?? '', transacciones: datosOCR.pagos?.otro?.transacciones              ?? '' },
       },
     }))
-  }, [datosOCR])
+  }, [datosOCR, sucursales])
 
   const set = (field, value) => setForm((p) => ({ ...p, [field]: value }))
   const setPago = (metodo, field, value) =>
@@ -88,10 +109,10 @@ export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onC
 
   const montoInicial   = parseFloat(form.monto_inicial)   || 0
   const ventasEfectivo = parseFloat(form.ventas_efectivo) || 0
-  const totalEsperado  = montoInicial + ventasEfectivo
-  const totalReal      = parseFloat(form.total_real) || 0
   const montoRetiro    = parseFloat(form.monto_retiro) || 0
-  const montoEnCaja    = totalReal - montoRetiro
+  // Saldo Esperado = Inicial + Ventas Efectivo − Retiro (total de egresos)
+  const totalEsperado  = montoInicial + ventasEfectivo - montoRetiro
+  const totalReal      = parseFloat(form.total_real) || 0
   const diferencia     = totalReal - totalEsperado
 
   const handleSubmit = async (e) => {
@@ -211,10 +232,41 @@ export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onC
         </div>
       </div>
 
-      {/* Total esperado (calculado) */}
-      <div className="bg-cream rounded-ui px-4 py-3 flex items-center justify-between">
-        <span className="text-sm text-gray-600 font-medium">Total Esperado (calculado)</span>
-        <span className="text-base font-bold text-red-deep font-display">{ARS(totalEsperado)}</span>
+      {/* Retiro de caja (egresos) — leído del ticket, discriminado */}
+      {(montoRetiro > 0 || form.egresos.length > 0) && (
+        <div className="border border-amber-200 bg-amber-50 rounded-ui p-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-amber-700 uppercase tracking-wide">Retiro de caja (egresos)</span>
+            <span className="text-[10px] text-amber-600">leído del ticket</span>
+          </div>
+          {form.egresos.length > 0 ? (
+            <ul className="space-y-1">
+              {form.egresos.map((e, i) => (
+                <li key={i} className="flex items-center justify-between text-sm">
+                  <span className="text-gray-700 capitalize">{e?.concepto || 'Egreso'}</span>
+                  <span className="font-medium text-amber-700 font-display">− {ARS(Number(e?.monto) || 0)}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-xs text-gray-500">Sin detalle de egresos en el ticket.</p>
+          )}
+          <div className="flex items-center justify-between pt-1 border-t border-amber-200">
+            <span className="text-sm font-semibold text-amber-800">Total retiro</span>
+            <span className="text-base font-bold text-amber-800 font-display">− {ARS(montoRetiro)}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Total esperado (calculado) — Inicial + Ventas Efectivo − Retiro */}
+      <div className="bg-cream rounded-ui px-4 py-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-600 font-medium">Saldo Esperado (calculado)</span>
+          <span className="text-base font-bold text-red-deep font-display">{ARS(totalEsperado)}</span>
+        </div>
+        <p className="text-[10px] text-gray-400 mt-1">
+          Inicial {ARS(montoInicial)} + Ventas {ARS(ventasEfectivo)} − Retiro {ARS(montoRetiro)}
+        </p>
       </div>
 
       <div>
@@ -243,38 +295,6 @@ export default function FormArqueoManual({ datosOCR, imagenPath, onGuardado, onC
           </span>
         </motion.div>
       )}
-
-      {/* Retiro y resto en caja */}
-      <div className="border border-dashed border-red-deep/30 rounded-ui p-4 space-y-3 bg-red-deep/3">
-        <p className="text-xs font-semibold text-red-deep uppercase tracking-wide">Retiro y cierre de caja</p>
-        <div>
-          <label className="label">Monto retirado para depósito ($)</label>
-          <input
-            className="input-field"
-            type="number"
-            step="0.01"
-            placeholder="0"
-            value={form.monto_retiro}
-            onChange={(e) => set('monto_retiro', e.target.value)}
-          />
-        </div>
-        {form.monto_retiro !== '' && (
-          <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-2 gap-3"
-          >
-            <div className="bg-amber-50 border border-amber-200 rounded-ui px-3 py-2.5 text-center">
-              <p className="text-[10px] text-amber-700 font-semibold uppercase tracking-wide mb-0.5">Retiro</p>
-              <p className="text-base font-bold font-display text-amber-700">{ARS(montoRetiro)}</p>
-            </div>
-            <div className="bg-emerald-50 border border-emerald-200 rounded-ui px-3 py-2.5 text-center">
-              <p className="text-[10px] text-emerald-700 font-semibold uppercase tracking-wide mb-0.5">Queda en caja</p>
-              <p className="text-base font-bold font-display text-emerald-700">{ARS(montoEnCaja)}</p>
-            </div>
-          </motion.div>
-        )}
-      </div>
 
       {/* Formas de pago */}
       <div>
